@@ -21,7 +21,7 @@ The platform addresses a major civic pain point: the highly fragmented and dense
 4. **State-Level Regional Dashboard**
    * Map filters to view and browse localized schemes (e.g., Maharashtra's Shetkari Karjmukti, West Bengal's Kanyashree, Karnataka's Yuva Nidhi, etc.).
 5. **Verified Civic Datasets**
-   * Clean, emoji-free client-side database (`data.js`) normalized using vectors.
+   * Clean, client-side database (`data.js`) normalized using vectors.
    * No placeholders: strictly verified, source-linked metrics from official press releases, NITI Aayog, and Ministry dashboards.
 
 ---
