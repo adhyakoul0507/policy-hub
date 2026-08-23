@@ -1,4 +1,4 @@
-# Policy Hub 🏛️
+# Policy Hub 
 
 **Policy Hub** (formerly MyPolicy) is a modern, high-performance web-based intelligence platform designed to centralize, analyze, and simplify access to **76 flagship government schemes** in India (across both Central Sector/Sponsored and State-level programs).
 
@@ -6,7 +6,7 @@ The platform addresses a major civic pain point: the highly fragmented and dense
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 1. **Interactive Analytics Dashboard**
    * Visualizes scheme distributions across 9 policy domains (Agriculture, Livelihood, Health, Education, Social Security, etc.).
@@ -26,7 +26,7 @@ The platform addresses a major civic pain point: the highly fragmented and dense
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## Tech Stack & Architecture
 
 * **Frontend:** Single Page Application (SPA) using Vanilla JavaScript, HTML5, and CSS3. 
 * **Styling:** Custom CSS layout using CSS Grid and Flexbox (fully responsive on tablet and mobile viewports).
@@ -36,7 +36,7 @@ The platform addresses a major civic pain point: the highly fragmented and dense
 
 ---
 
-## 🚀 How to Run Locally
+##  How to Run Locally
 
 ### 1. Clone the repository
 Create a repository on your GitHub and clone it locally, or initialize it directly:
