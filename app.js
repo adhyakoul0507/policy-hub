@@ -120,39 +120,50 @@ function showToast(message, type = 'info') {
 // ============================================================
 // HOME DASHBOARD
 // ============================================================
-function initHome() {
-  const subtitleCount = document.getElementById('hero-subtitle-count');
-  if (subtitleCount) subtitleCount.textContent = policies.length;
+let policies = [];
 
-  // Hero animated counters — real numbers from official sources
-  const heroSchemes = document.getElementById('hs-schemes');
-  const heroBenef  = document.getElementById('hs-beneficiaries');
-  const heroBudget = document.getElementById('hs-budget');
-  if (heroSchemes) animateCounter(heroSchemes, policies.length, 1800);  // actual schemes in dataset
-  if (heroBenef)   animateCounter(heroBenef, 53, 1800);   // PMJDY: 53 Cr accounts (RBI/PMJDY.gov.in, 2024) — largest single-scheme reach
-  if (heroBudget)  animateCounter(heroBudget, 3.86, 1800); // ₹3.86 lakh crore = Union Budget 2024-25 social services allocation (MoF Budget document)
+async function initApp() {
+  try {
+    const statsRes = await fetch('/api/stats');
+    const stats = await statsRes.json();
 
-  // Stat cards — dynamically calculated from dataset to guarantee 100% accuracy
-  const centralCount = policies.filter(p => p.category !== 'state').length;
-  const stateCount = policies.filter(p => p.category === 'state').length;
-  const statesWithSchemes = [...new Set(policies.filter(p => p.category === 'state').flatMap(p => p.stateSpecific || []))].length;
-  const totalStates = typeof STATES !== 'undefined' ? STATES.length : 36;
+    const subtitleCount = document.getElementById('hero-subtitle-count');
+    if (subtitleCount) subtitleCount.textContent = stats.totalCount;
 
-  const centralEl = document.getElementById('stats-central-count');
-  const statesEl = document.getElementById('stats-states-with-schemes');
-  const stateSchemesEl = document.getElementById('stats-state-schemes-count');
-  const totalStatesEl = document.getElementById('stats-total-states-count');
+    const heroSchemes = document.getElementById('hs-schemes');
+    const heroBenef  = document.getElementById('hs-beneficiaries');
+    const heroBudget = document.getElementById('hs-budget');
+    if (heroSchemes) animateCounter(heroSchemes, stats.totalCount, 1800);
+    if (heroBenef)   animateCounter(heroBenef, 53, 1800);
+    if (heroBudget)  animateCounter(heroBudget, 3.86, 1800);
 
-  if (centralEl) animateCounter(centralEl, centralCount);
-  if (statesEl) animateCounter(statesEl, statesWithSchemes);
-  if (stateSchemesEl) animateCounter(stateSchemesEl, stateCount);
-  if (totalStatesEl) animateCounter(totalStatesEl, totalStates);
+    const centralEl = document.getElementById('stats-central-count');
+    const statesEl = document.getElementById('stats-states-with-schemes');
+    const stateSchemesEl = document.getElementById('stats-state-schemes-count');
+    const totalStatesEl = document.getElementById('stats-total-states-count');
 
-  // Chart: Category Bar — real scheme counts from our dataset
+    if (centralEl) animateCounter(centralEl, stats.centralCount);
+    if (statesEl) animateCounter(statesEl, stats.statesWithSchemes);
+    if (stateSchemesEl) animateCounter(stateSchemesEl, stats.stateCount);
+    if (totalStatesEl) animateCounter(totalStatesEl, stats.totalStates);
+
+    initHomeCharts(stats);
+
+    const schemesRes = await fetch('/api/schemes');
+    policies = await schemesRes.json();
+
+    renderPoliciesGrid(policies);
+    initCategoryTabs();
+    initSchemeSearch();
+
+  } catch (err) {
+    console.error("Failed to initialize app from Python backend:", err);
+    showToast("Backend connection failed.", "error");
+  }
+}
+
+function initHomeCharts(stats) {
   const catLabels = ['Agriculture', 'Women & Child', 'Health', 'Education', 'Housing', 'Livelihood', 'Social Security', 'Digital', 'State'];
-  // Count real schemes per category from loaded data
-  const cats = ['agriculture', 'women', 'health', 'education', 'housing', 'livelihood', 'social', 'digital', 'state'];
-  const catCounts = cats.map(c => policies.filter(p => p.category === c).length);
   const catColors = [
     CATEGORY_COLORS.agriculture, CATEGORY_COLORS.women, CATEGORY_COLORS.health,
     CATEGORY_COLORS.education, CATEGORY_COLORS.housing, CATEGORY_COLORS.livelihood,
@@ -165,7 +176,7 @@ function initHome() {
       labels: catLabels,
       datasets: [{
         label: 'Schemes',
-        data: catCounts,
+        data: stats.categoryCounts,
         backgroundColor: catColors.map(c => c + 'cc'),
         borderColor: catColors,
         borderWidth: 1.5,
@@ -187,7 +198,7 @@ function initHome() {
     data: {
       labels: catLabels,
       datasets: [{
-        data: catCounts,
+        data: stats.categoryCounts,
         backgroundColor: catColors.map(c => c + 'cc'),
         borderColor: 'rgba(10,22,40,0.5)',
         borderWidth: 2,
@@ -201,19 +212,13 @@ function initHome() {
     },
   });
 
-  // Chart: Home Budget Top 10 (Factual)
-  const budgetTop = policies
-    .filter(p => p.budget && p.budget > 0)
-    .sort((a, b) => b.budget - a.budget)
-    .slice(0, 10);
-
   createChart('chart-home-budget-top', {
     type: 'bar',
     data: {
-      labels: budgetTop.map(p => p.title.length > 25 ? p.title.slice(0, 24) + '…' : p.title),
+      labels: stats.budgetTop.map(p => p.title.length > 25 ? p.title.slice(0, 24) + '…' : p.title),
       datasets: [{
         label: '₹ Crore Budget',
-        data: budgetTop.map(p => p.budget),
+        data: stats.budgetTop.map(p => p.budget),
         backgroundColor: PALETTE.saffron + 'cc',
         borderColor: PALETTE.saffron,
         borderWidth: 1.5,
@@ -232,19 +237,13 @@ function initHome() {
     }
   });
 
-  // Chart: Home Beneficiaries Top 10 (Factual)
-  const benefTop = policies
-    .filter(p => p.beneficiaries && p.beneficiaries > 0)
-    .sort((a, b) => b.beneficiaries - a.beneficiaries)
-    .slice(0, 10);
-
   createChart('chart-home-benef-top', {
     type: 'bar',
     data: {
-      labels: benefTop.map(p => p.title.length > 25 ? p.title.slice(0, 24) + '…' : p.title),
+      labels: stats.benefTop.map(p => p.title.length > 25 ? p.title.slice(0, 24) + '…' : p.title),
       datasets: [{
         label: 'Crore Beneficiaries',
-        data: benefTop.map(p => p.beneficiaries),
+        data: stats.benefTop.map(p => p.beneficiaries),
         backgroundColor: PALETTE.green + 'cc',
         borderColor: PALETTE.green,
         borderWidth: 1.5,
@@ -262,43 +261,39 @@ function initHome() {
       }
     }
   });
-
-  // Render policy grid
-  renderPoliciesGrid(policies);
-  initCategoryTabs();
-  initSchemeSearch();
 }
 
 // ── Category Tabs ──
 let activeCategory = 'all';
 function initCategoryTabs() {
   document.querySelectorAll('#category-tabs .tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       document.querySelectorAll('#category-tabs .tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeCategory = btn.dataset.cat;
-      const query = document.getElementById('scheme-search').value.toLowerCase();
-      renderPoliciesGrid(filterPolicies(activeCategory, query));
+      const query = document.getElementById('scheme-search').value;
+      const filtered = await fetchFilteredSchemes(activeCategory, query);
+      renderPoliciesGrid(filtered);
     });
   });
 }
 
 function initSchemeSearch() {
-  document.getElementById('scheme-search').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    renderPoliciesGrid(filterPolicies(activeCategory, query));
+  document.getElementById('scheme-search').addEventListener('input', async (e) => {
+    const query = e.target.value;
+    const filtered = await fetchFilteredSchemes(activeCategory, query);
+    renderPoliciesGrid(filtered);
   });
 }
 
-function filterPolicies(cat, query) {
-  return policies.filter(p => {
-    const matchCat = cat === 'all' || p.category === cat;
-    const matchQ = !query ||
-      p.title.toLowerCase().includes(query) ||
-      p.subtitle.toLowerCase().includes(query) ||
-      (p.ministry && p.ministry.toLowerCase().includes(query));
-    return matchCat && matchQ;
-  });
+async function fetchFilteredSchemes(category, query) {
+  try {
+    const res = await fetch(`/api/schemes?category=${category}&q=${encodeURIComponent(query)}`);
+    return await res.json();
+  } catch (err) {
+    console.error("Failed to fetch filtered schemes:", err);
+    return [];
+  }
 }
 
 // ── Render Policy Grid ──
@@ -463,29 +458,36 @@ function initCompareSelects() {
   });
 }
 
-function runComparison() {
+async function runComparison() {
   const idA = document.getElementById('compare-1').value;
   const idB = document.getElementById('compare-2').value;
   if (idA === idB) { showToast('Please select two different policies.', 'error'); return; }
 
-  const pA = policies.find(p => p.id === idA);
-  const pB = policies.find(p => p.id === idB);
-  if (!pA || !pB) return;
+  try {
+    const res = await fetch('/api/compare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idA, idB })
+    });
+    const { policyA, policyB } = await res.json();
+    if (!policyA || !policyB) return;
 
-  const resultEl = document.getElementById('compare-result');
-  resultEl.classList.remove('hidden');
+    const resultEl = document.getElementById('compare-result');
+    resultEl.classList.remove('hidden');
 
-  // Policy Summary Cards
-  document.getElementById('comp-card-a').innerHTML = buildComparePolicyCard(pA, 'a');
-  document.getElementById('comp-card-b').innerHTML = buildComparePolicyCard(pB, 'b');
+    // Policy Summary Cards
+    document.getElementById('comp-card-a').innerHTML = buildComparePolicyCard(policyA, 'a');
+    document.getElementById('comp-card-b').innerHTML = buildComparePolicyCard(policyB, 'b');
 
-  // Charts
-  setTimeout(() => {
-    buildCompareCharts(pA, pB);
-    buildCompareInsights(pA, pB);
-  }, 50);
-
-  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Charts & Insights
+    setTimeout(() => {
+      buildCompareCharts(policyA, policyB);
+      buildCompareInsights(policyA, policyB);
+    }, 100);
+  } catch (err) {
+    console.error("Failed to run comparison via backend:", err);
+    showToast("Backend connection failed.", "error");
+  }
 }
 
 function buildComparePolicyCard(p, side) {
@@ -805,7 +807,7 @@ function showStep(step) {
   currentStep = step;
 }
 
-function checkEligibility() {
+async function checkEligibility() {
   if (!validateStep(3)) return;
 
   const userProfile = {
@@ -824,75 +826,18 @@ function checkEligibility() {
     bank:       document.getElementById('elig-bank').value === 'yes',
   };
 
-  const results = computeEligibility(userProfile);
-  renderEligibilityResults(results, userProfile);
-}
-
-function computeEligibility(u) {
-  return policies.map(p => {
-    let score = 0;
-    let maxScore = 0;
-    let blockers = [];
-
-    const e = p.eligibility;
-
-    // Age check (hard requirement)
-    maxScore += 20;
-    if (u.age >= e.ageMin && u.age <= e.ageMax) score += 20;
-    else blockers.push(`Age ${u.age} outside required range ${e.ageMin}–${e.ageMax}`);
-
-    // Gender
-    maxScore += 15;
-    if (e.gender.includes('any') || e.gender.includes(u.gender)) score += 15;
-    else blockers.push(`Scheme is ${e.gender.join('/')}-only`);
-
-    // Income
-    maxScore += 20;
-    if (u.income <= e.incomeMax) score += 20;
-    else if (u.income <= e.incomeMax * 1.3) score += 8;
-    else blockers.push('Income exceeds scheme limit');
-
-    // Profession
-    maxScore += 20;
-    if (e.profession.includes('any') || e.profession.includes(u.profession)) score += 20;
-    else score += 5;
-
-    // Caste
-    maxScore += 10;
-    if (e.caste.includes('any') || e.caste.includes(u.caste)) score += 10;
-
-    // BPL
-    maxScore += 5;
-    if (!e.bplRequired) score += 5;
-    else if (u.bpl) score += 5;
-    else blockers.push('BPL card required');
-
-    // Land
-    maxScore += 5;
-    if (!e.landRequired) score += 5;
-    else if (u.land) score += 5;
-    else blockers.push('Agricultural land required');
-
-    // State-specific bonus
-    if (p.stateSpecific) {
-      const stateMatch = p.stateSpecific.some(s => s.toLowerCase() === u.state.toLowerCase());
-      if (!stateMatch) {
-        score = Math.min(score, 30); // Cap score for state-specific schemes if wrong state
-        blockers.push(`State-specific scheme (${p.stateSpecific.join(', ')})`);
-      } else {
-        score += 5;
-      }
-    }
-
-    // Special boosts
-    if (u.pregnant && p.id === 'janani-suraksha') score = Math.min(100, score + 20);
-    if (u.girls !== '0' && (p.id === 'beti-bachao' || p.id === 'sukanya-samriddhi')) score = Math.min(100, score + 15);
-    if (u.girls !== '0' && (p.id === 'ladli-delhi' || p.id === 'kanyashree-wb')) score = Math.min(100, score + 15);
-    if (!u.house && (p.id === 'pm-awas-gramin' || p.id === 'pm-awas-urban')) score = Math.min(100, score + 10);
-
-    const pct = Math.round((score / maxScore) * 100);
-    return { policy: p, score: pct, blockers };
-  }).sort((a, b) => b.score - a.score);
+  try {
+    const res = await fetch('/api/eligibility', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userProfile)
+    });
+    const results = await res.json();
+    renderEligibilityResults(results, userProfile);
+  } catch (err) {
+    console.error("Failed to check eligibility via backend:", err);
+    showToast("Backend connection failed.", "error");
+  }
 }
 
 function renderEligibilityResults(results, profile) {
@@ -1249,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Initialize app ──
-  initHome();
+  initApp();
 
   // ── Initialize Lucide icons ──
   if (typeof lucide !== 'undefined') {
