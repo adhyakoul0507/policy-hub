@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Policy Hub — Policy Intelligence Platform</title>
+  <meta name="description" content="Discover, compare, and check eligibility for 80+ Indian government schemes. Policy analysis, eligibility checker, and analytics based on official government data sources.">
+  <meta name="keywords" content="Indian government schemes, policy finder, PM-KISAN, Ayushman Bharat, eligibility checker, government benefits India">
+  <meta property="og:title" content="Policy Hub">
+  <meta property="og:description" content="Policy Hub comprehensive policy intelligence platform.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=12">
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo" onclick="switchView('home')">
+    <div class="nav-logo-icon"><i data-lucide="landmark"></i></div>
+    <span class="nav-logo-text">Policy<span>Hub</span></span>
+  </div>
+
+  <div class="nav-links">
+    <button class="nav-link active" id="nav-home" onclick="switchView('home')">
+      <span class="nav-icon"><i data-lucide="home"></i></span><span>Dashboard</span>
+    </button>
+    <button class="nav-link" id="nav-compare" onclick="switchView('compare')">
+      <span class="nav-icon"><i data-lucide="scale"></i></span><span>Compare</span>
+    </button>
+    <button class="nav-link" id="nav-sentiment" onclick="switchView('sentiment')">
+      <span class="nav-icon"><i data-lucide="bar-chart-2"></i></span><span>Data & Sources</span>
+    </button>
+    <button class="nav-link" id="nav-eligibility" onclick="switchView('eligibility')">
+      <span class="nav-icon"><i data-lucide="check-circle-2"></i></span><span>Eligibility</span>
+    </button>
+    <button class="nav-link" id="nav-regional" onclick="switchView('regional')">
+      <span class="nav-icon"><i data-lucide="map"></i></span><span>State Schemes</span>
+    </button>
+  </div>
+
+  <div class="nav-right">
+    <button class="btn-nav-cta" onclick="switchView('eligibility')">Check Eligibility →</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main-content">
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW: HOME DASHBOARD
+       ═══════════════════════════════════════════════════════ -->
+  <section id="view-home" class="view-section active">
+
+    <!-- Hero -->
+    <div class="hero-section">
+      <div class="hero-bg"></div>
+      <div class="container" style="display:flex; align-items:center; width:100%; gap:2rem;">
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <div class="hero-eyebrow-dot"></div>
+            Official Government Data · Updated 2025
+          </div>
+          <h1 class="hero-title">
+            Policy Hub<br>
+            <span class="hero-title-accent">Policy Intelligence Platform</span>
+          </h1>
+          <p class="hero-subtitle">
+            Explore <strong id="hero-subtitle-count">76</strong> detailed government schemes with verified eligibility criteria, benefits, and application steps — plus analytics modelled from official government reports and CAG audits.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" onclick="switchView('eligibility')">
+              <i data-lucide="target"></i> Check My Eligibility
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="switchView('compare')">
+              <i data-lucide="scale"></i> Compare Policies
+            </button>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hs-schemes">0</span>
+            <span class="hero-stat-label">Schemes Detailed Here</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hs-beneficiaries">53</span>
+            <span class="hero-stat-label">Cr PMJDY Accounts <span style="font-size:0.6em;opacity:0.6">(RBI 2024)</span></span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hs-budget">3.86</span>
+            <span class="hero-stat-label">₹ Lakh Cr Social Budget <span style="font-size:0.6em;opacity:0.6">(Budget 2024-25)</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="container section-pad" style="padding-top: 2.5rem;">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <span class="stat-card-icon"><i data-lucide="landmark"></i></span>
+          <span class="stat-card-value" id="stats-central-count">0</span>
+          <div class="stat-card-label">Central Schemes Loaded</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-icon"><i data-lucide="map"></i></span>
+          <span class="stat-card-value" id="stats-states-with-schemes">0</span>
+          <div class="stat-card-label">States with Loaded Schemes</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-icon"><i data-lucide="laptop"></i></span>
+          <span class="stat-card-value" id="stats-state-schemes-count">0</span>
+          <div class="stat-card-label">State-Specific Schemes</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-icon"><i data-lucide="map-pin"></i></span>
+          <span class="stat-card-value" id="stats-total-states-count">0</span>
+          <div class="stat-card-label">States & UTs Covered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="container" style="padding-bottom: 2.5rem;">
+      <div class="dashboard-grid">
+        <div class="chart-card">
+          <div class="chart-title">Schemes by Category</div>
+          <div class="chart-subtitle">Distribution of government schemes across policy domains</div>
+          <div class="chart-canvas-wrap" style="height:280px;">
+            <canvas id="chart-category-bar"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Category Breakdown</div>
+          <div class="chart-subtitle">Share of central scheme types</div>
+          <div class="chart-canvas-wrap" style="height:280px;">
+            <canvas id="chart-category-doughnut"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Factual Performance Comparison Row -->
+    <div class="container" style="padding-bottom: 2.5rem;">
+      <div class="charts-grid-2">
+        <div class="chart-card">
+          <div class="chart-title"><i data-lucide="circle-dollar-sign"></i> Top 10 Schemes by Annual Budget</div>
+          <div class="chart-subtitle">Annual budget outlays (in ₹ Crore) from official budget documents</div>
+          <div class="chart-canvas-wrap" style="height:280px;">
+            <canvas id="chart-home-budget-top"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><i data-lucide="users"></i> Top 10 Schemes by Beneficiary Reach</div>
+          <div class="chart-subtitle">Direct reach (in Crore) from official DBT & ministry databases</div>
+          <div class="chart-canvas-wrap" style="height:280px;">
+            <canvas id="chart-home-benef-top"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Scheme Browser -->
+    <div class="container" style="padding-bottom: 4rem;">
+      <div class="section-header">
+        <div class="section-eyebrow"><i data-lucide="clipboard-list"></i> Browse Schemes</div>
+        <h2 class="section-title">Featured Government Schemes</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Click any card to view full details, verified eligibility criteria, and official application steps. All scheme data sourced from official gov.in portals.</p>
+      </div>
+
+      <!-- Search + Filter Row -->
+      <div class="flex items-center gap-4 mb-6" style="flex-wrap:wrap;">
+        <div class="search-wrap" style="flex:1; min-width:220px;">
+          <span class="search-icon"><i data-lucide="search"></i></span>
+          <input type="text" id="scheme-search" class="form-control search-input" placeholder="Search schemes...">
+        </div>
+        <div class="tabs-row" id="category-tabs">
+          <button class="tab-btn active" data-cat="all">All</button>
+          <button class="tab-btn" data-cat="agriculture"><i data-lucide="wheat"></i> Agriculture</button>
+          <button class="tab-btn" data-cat="women"><i data-lucide="user-circle"></i> Women & Children</button>
+          <button class="tab-btn" data-cat="health"><i data-lucide="hospital"></i> Health</button>
+          <button class="tab-btn" data-cat="education"><i data-lucide="book-open"></i> Education</button>
+          <button class="tab-btn" data-cat="housing"><i data-lucide="home"></i> Housing</button>
+          <button class="tab-btn" data-cat="livelihood"><i data-lucide="briefcase"></i> Livelihood</button>
+          <button class="tab-btn" data-cat="social"><i data-lucide="shield-check"></i> Social Security</button>
+          <button class="tab-btn" data-cat="digital"><i data-lucide="laptop"></i> Digital</button>
+          <button class="tab-btn" data-cat="state"><i data-lucide="map"></i> State</button>
+        </div>
+      </div>
+
+      <div class="policies-grid" id="policies-grid"></div>
+      <div class="empty-state hidden" id="no-results">
+        <div class="empty-state-icon"><i data-lucide="search"></i></div>
+        <div class="empty-state-title">No schemes found</div>
+        <p class="empty-state-text">Try different keywords or select a different category.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW: COMPARE
+       ═══════════════════════════════════════════════════════ -->
+  <section id="view-compare" class="view-section">
+    <div class="container section-pad">
+      <div class="section-header">
+        <div class="section-eyebrow"><i data-lucide="scale"></i> Policy Analysis</div>
+        <h1 class="section-title">Side-by-Side Policy Comparison</h1>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Select any two schemes for a factual side-by-side analysis with charts, eligibility differences, and official budget data.</p>
+      </div>
+
+      <!-- Policy Selectors -->
+      <div class="form-section mb-6">
+        <div class="compare-header">
+          <div>
+            <label class="form-label mb-2" style="display:block;">Policy A</label>
+            <select id="compare-1" class="form-control"></select>
+          </div>
+          <div class="compare-vs">VS</div>
+          <div>
+            <label class="form-label mb-2" style="display:block;">Policy B</label>
+            <select id="compare-2" class="form-control"></select>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top: 1.25rem;">
+          <button class="btn btn-primary btn-lg" id="btn-compare" onclick="runComparison()">
+            <i data-lucide="scale"></i> Compare Schemes
+          </button>
+        </div>
+      </div>
+
+      <!-- Comparison Results -->
+      <div id="compare-result" class="hidden">
+
+        <!-- Policy Overview Cards -->
+        <div class="compare-header mb-6">
+          <div class="compare-policy-card policy-a" id="comp-card-a"></div>
+          <div class="compare-vs">VS</div>
+          <div class="compare-policy-card policy-b" id="comp-card-b"></div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid-2 mb-6">
+          <div class="chart-card">
+            <div class="chart-title"><i data-lucide="circle-dollar-sign"></i> Budget Comparison</div>
+            <div class="chart-subtitle">Annual outlay in ₹ Crore (Sourced from Union Budget)</div>
+            <div class="chart-canvas-wrap" style="height:260px;">
+              <canvas id="compare-budget-bar"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><i data-lucide="users"></i> Beneficiary Reach Comparison</div>
+            <div class="chart-subtitle">Total beneficiaries in Crore (Sourced from DBT/Ministry data)</div>
+            <div class="chart-canvas-wrap" style="height:260px;">
+              <canvas id="compare-benef-bar"></canvas>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Scheme Analysis + Similarities -->
+        <div class="dashboard-grid">
+          <div>
+            <div class="compare-section-title"><i data-lucide="clipboard-list"></i> Scheme Analysis</div>
+            <div id="compare-insights"></div>
+          </div>
+          <div>
+            <div class="compare-section-title"><i data-lucide="link"></i> Similarities & Differences</div>
+            <div id="compare-tags" style="line-height:2.2;"></div>
+            <div class="divider"></div>
+            <div class="compare-section-title mt-4"><i data-lucide="clipboard-list"></i> Eligibility Comparison</div>
+            <div id="compare-eligibility"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW: DATA & SOURCES (formerly Analytics)
+       ═══════════════════════════════════════════════════════ -->
+  <section id="view-sentiment" class="view-section">
+    <div class="container section-pad">
+      <div class="section-header">
+        <div class="section-eyebrow"><i data-lucide="bar-chart-2"></i> Data & Sources</div>
+        <h1 class="section-title">What We Know — and Where From</h1>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">This page shows only verified facts from official government sources. No sentiment scores, no modelled data, no fake testimonials.</p>
+      </div>
+
+      <!-- Dataset Breakdown — real counts from loaded data -->
+      <div class="section-header" style="margin-bottom:1rem;">
+        <div class="section-eyebrow"><i data-lucide="clipboard-list"></i> Our Dataset</div>
+        <h2 class="section-title" style="font-size:1.5rem;">85 Schemes by Category</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Actual scheme counts from this dataset. All data sourced from official gov.in portals.</p>
+      </div>
+      <div class="charts-grid-2 mb-6">
+        <div class="chart-card">
+          <div class="chart-title">Schemes by Category <span class="data-badge real">Real</span></div>
+          <div class="chart-subtitle">Count of schemes in this dataset per domain</div>
+          <div class="chart-canvas-wrap" style="height:280px;">
+            <canvas id="ds-category-bar"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Budget Allocation by Category <span class="data-badge real">Real</span></div>
+          <div class="chart-subtitle">Annual budget (₹ Crore) from Union Budget documents</div>
+          <div class="chart-canvas-wrap" style="height:280px;">
+            <canvas id="ds-budget-bar"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top schemes by beneficiaries — real data -->
+      <div class="section-header" style="margin-bottom:1rem;">
+        <div class="section-eyebrow"><i data-lucide="users"></i> Beneficiary Data</div>
+        <h2 class="section-title" style="font-size:1.5rem;">Largest Schemes by Reach</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Official beneficiary figures from ministry reports, PIB press releases, and DBT Bharat.</p>
+      </div>
+      <div class="chart-card mb-6">
+        <div class="chart-title">Top 10 Schemes by Beneficiary Count <span class="data-badge real">Real</span></div>
+        <div class="chart-subtitle">Crore beneficiaries — sourced from official scheme portals</div>
+        <div class="chart-canvas-wrap" style="height:300px;">
+          <canvas id="ds-beneficiary-bar"></canvas>
+        </div>
+      </div>
+
+      <!-- Official Data Portals -->
+      <div class="section-header" style="margin-bottom:1rem;">
+        <div class="section-eyebrow"><i data-lucide="link"></i> Official Sources</div>
+        <h2 class="section-title" style="font-size:1.5rem;">Where to Find Real Government Data</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">These are the actual official portals that publish verified government scheme statistics.</p>
+      </div>
+
+      <div class="data-sources-grid mb-6" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1rem;">
+        <a class="data-source-card" href="https://dbtbharat.gov.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="credit-card"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">DBT Bharat</div>
+            <div class="dsc-desc">Real-time Direct Benefit Transfer statistics — total transfers, scheme-wise counts, ministry breakdown.</div>
+            <div class="dsc-url">dbtbharat.gov.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://pmjdy.gov.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="building-2"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">PMJDY Progress Report</div>
+            <div class="dsc-desc">Weekly updated Jan Dhan account statistics — total accounts, deposits, RuPay cards, zero-balance accounts.</div>
+            <div class="dsc-url">pmjdy.gov.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://dashboard.nha.gov.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="hospital"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">Ayushman Bharat Dashboard</div>
+            <div class="dsc-desc">Live KPIs — total cards issued, hospital admissions, empanelled hospitals, state-wise breakdowns.</div>
+            <div class="dsc-url">dashboard.nha.gov.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://nreganarep.nic.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="wheat"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">MGNREGS MIS Portal</div>
+            <div class="dsc-desc">100+ real-time reports — job cards, employment generated, expenditure, state and district level data.</div>
+            <div class="dsc-url">nreganarep.nic.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://pmkisan.gov.in/dashboardhome.aspx" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="sprout"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">PM-KISAN Dashboard</div>
+            <div class="dsc-desc">Installment-wise disbursement data, beneficiary count, state-wise distribution of payments.</div>
+            <div class="dsc-url">pmkisan.gov.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://data.gov.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="folder-open"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">data.gov.in (Open API)</div>
+            <div class="dsc-desc">India's Open Government Data platform. 100,000+ datasets. Free API with registration. Scheme-wise CSVs available.</div>
+            <div class="dsc-url">data.gov.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://indiabudget.gov.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="circle-dollar-sign"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">India Budget Portal</div>
+            <div class="dsc-desc">Annual Union Budget documents — scheme-wise demands for grants, ministry allocations, XLS downloads.</div>
+            <div class="dsc-url">indiabudget.gov.in</div>
+          </div>
+        </a>
+        <a class="data-source-card" href="https://ndap.niti.gov.in" target="_blank" rel="noopener">
+          <div class="dsc-icon"><i data-lucide="trending-up"></i></div>
+          <div class="dsc-body">
+            <div class="dsc-title">NDAP — NITI Aayog</div>
+            <div class="dsc-desc">National Data & Analytics Platform. Standardized multi-sector datasets — agriculture, health, education, employment.</div>
+            <div class="dsc-url">ndap.niti.gov.in</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW: ELIGIBILITY CHECKER
+       ═══════════════════════════════════════════════════════ -->
+  <section id="view-eligibility" class="view-section">
+    <div class="container section-pad">
+      <div class="section-header">
+        <div class="section-eyebrow"><i data-lucide="check-circle-2"></i> Personalized Matching</div>
+        <h1 class="section-title">Eligibility Checker</h1>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Answer a few questions and we'll instantly match you with government schemes you're eligible for, complete with application guidance.</p>
+      </div>
+
+      <!-- Step Form -->
+      <div id="eligibility-form-section">
+        <!-- Step Indicators -->
+        <div class="step-indicators mb-6">
+          <div class="step-dot active" id="step-ind-1">
+            <div class="step-num">1</div>
+            <span>Personal Info</span>
+          </div>
+          <div class="step-connector" id="conn-1"></div>
+          <div class="step-dot" id="step-ind-2">
+            <div class="step-num">2</div>
+            <span>Location & Family</span>
+          </div>
+          <div class="step-connector" id="conn-2"></div>
+          <div class="step-dot" id="step-ind-3">
+            <div class="step-num">3</div>
+            <span>Background</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Personal Info -->
+        <div id="elig-step-1" class="form-section">
+          <h3 class="compare-section-title mb-4"><i data-lucide="user"></i> Personal Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Age</label>
+              <input type="number" id="elig-age" class="form-control" placeholder="e.g. 28" min="0" max="120">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select id="elig-gender" class="form-control">
+                <option value="any">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other / Transgender</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Caste Category</label>
+              <select id="elig-caste" class="form-control">
+                <option value="general">General / Unreserved</option>
+                <option value="obc">OBC (Other Backward Class)</option>
+                <option value="sc">SC (Scheduled Caste)</option>
+                <option value="st">ST (Scheduled Tribe)</option>
+                <option value="minority">Minority Community</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Annual Income (₹)</label>
+              <input type="number" id="elig-income" class="form-control" placeholder="e.g. 250000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Occupation</label>
+              <select id="elig-profession" class="form-control">
+                <option value="farmer">Farmer / Agricultural Worker</option>
+                <option value="student">Student</option>
+                <option value="salaried">Salaried Employee</option>
+                <option value="business">Business Owner / Self-Employed</option>
+                <option value="unemployed">Unemployed / Job Seeker</option>
+                <option value="any">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Marital Status</label>
+              <select id="elig-marital" class="form-control">
+                <option value="any">Any</option>
+                <option value="single">Single / Unmarried</option>
+                <option value="married">Married</option>
+                <option value="widow">Widow / Widower</option>
+                <option value="divorced">Divorced / Separated</option>
+              </select>
+            </div>
+          </div>
+          <div style="text-align: right; margin-top: 1.5rem;">
+            <button class="btn btn-primary" onclick="nextStep(2)">Continue → Location Details</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Location & Family -->
+        <div id="elig-step-2" class="form-section hidden">
+          <h3 class="compare-section-title mb-4"><i data-lucide="map-pin"></i> Location & Family Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">State / Union Territory</label>
+              <select id="elig-state" class="form-control">
+                <option value="any">Select State</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Area Type</label>
+              <select id="elig-area" class="form-control">
+                <option value="any">Any</option>
+                <option value="rural">Rural</option>
+                <option value="urban">Urban</option>
+                <option value="semi-urban">Semi-Urban</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Family Size</label>
+              <select id="elig-family" class="form-control">
+                <option value="any">Any size</option>
+                <option value="1">Single / 1 member</option>
+                <option value="2-4">2–4 members</option>
+                <option value="5+">5+ members</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Do you own agricultural land?</label>
+              <select id="elig-land" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes, I own land</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of Girl Children</label>
+              <select id="elig-girls" class="form-control">
+                <option value="0">None</option>
+                <option value="1">1 girl child</option>
+                <option value="2+">2 or more girls</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pregnant / New Mother?</label>
+              <select id="elig-pregnant" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-between mt-6">
+            <button class="btn btn-secondary" onclick="prevStep(1)">← Back</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">Continue → Background Info</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Background -->
+        <div id="elig-step-3" class="form-section hidden">
+          <h3 class="compare-section-title mb-4"><i data-lucide="clipboard-list"></i> Additional Background</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Education Level</label>
+              <select id="elig-education" class="form-control">
+                <option value="any">Any</option>
+                <option value="illiterate">No formal education</option>
+                <option value="primary">Primary (up to Class 5)</option>
+                <option value="secondary">Secondary (Class 10)</option>
+                <option value="higher-secondary">Higher Secondary (Class 12)</option>
+                <option value="graduate">Graduate & above</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Do you have a BPL Card?</label>
+              <select id="elig-bpl" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes, I have a BPL Card</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Differently Abled?</label>
+              <select id="elig-disability" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bank Account?</label>
+              <select id="elig-bank" class="form-control">
+                <option value="yes">Yes, I have a bank account</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ex-Serviceman / Defence</label>
+              <select id="elig-exservice" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Do you already own a pucca house?</label>
+              <select id="elig-house" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-between mt-6">
+            <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+            <button class="btn btn-primary btn-lg" onclick="checkEligibility()">
+              <i data-lucide="target"></i> Find My Eligible Schemes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="eligibility-results" class="hidden">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="section-title" style="font-size: 1.75rem;">Your Matched Schemes</h2>
+            <p class="text-muted text-sm" id="elig-result-count"></p>
+          </div>
+          <button class="btn btn-outline" onclick="resetEligibility()">← Start Over</button>
+        </div>
+
+        <!-- Summary Chart -->
+        <div class="charts-grid-2 mb-6">
+          <div class="chart-card">
+            <div class="chart-title">Eligibility Score Distribution</div>
+            <div class="chart-subtitle">How well you match each category</div>
+            <div class="chart-canvas-wrap" style="height: 240px;">
+              <canvas id="elig-polar-chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Matched Scheme Breakdown</div>
+            <div class="chart-subtitle">By policy category</div>
+            <div class="chart-canvas-wrap" style="height: 240px;">
+              <canvas id="elig-match-doughnut"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- High Match -->
+        <div id="high-match-section" class="mb-6"></div>
+
+        <!-- Medium Match -->
+        <div id="medium-match-section" class="mb-6"></div>
+
+        <!-- Explore -->
+        <div id="explore-section" class="mb-6"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW: REGIONAL
+       ═══════════════════════════════════════════════════════ -->
+  <section id="view-regional" class="view-section">
+    <div class="container section-pad">
+      <div class="section-header">
+        <div class="section-eyebrow"><i data-lucide="map"></i> State Schemes</div>
+        <h1 class="section-title">State Initiatives Directory</h1>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Browse official flagship state-level schemes and link directly to official state portals. Only verified data is shown.</p>
+      </div>
+
+      <div class="state-selector-grid">
+        <!-- State List -->
+        <div>
+          <div class="search-wrap mb-4">
+            <span class="search-icon"><i data-lucide="search"></i></span>
+            <input type="text" id="state-search" class="form-control search-input" placeholder="Search state..." oninput="filterStates()">
+          </div>
+          <div class="state-list" id="state-list"></div>
+        </div>
+
+        <!-- State Dashboard -->
+        <div class="state-dashboard" id="state-dashboard">
+          <div class="empty-state" style="height: 400px; background: var(--navy-800); border-radius: var(--radius-xl); border: 1px solid rgba(255,255,255,0.06);">
+            <div class="empty-state-icon"><i data-lucide="map"></i></div>
+            <div class="empty-state-title">Select a State</div>
+            <p class="empty-state-text">Choose a state from the list to view its policy dashboard.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================================
+     POLICY DETAIL MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="policy-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div id="modal-tag" class="policy-card-tag"></div>
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="text-muted text-sm" id="modal-subtitle"></p>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid mb-6" id="modal-quick-stats" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;"></div>
+
+    <!-- Tabs -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="overview" onclick="switchModalTab('overview')">Overview</button>
+      <button class="modal-tab" data-tab="benefits" onclick="switchModalTab('benefits')">Benefits</button>
+      <button class="modal-tab" data-tab="apply" onclick="switchModalTab('apply')">How to Apply</button>
+      <button class="modal-tab" data-tab="documents" onclick="switchModalTab('documents')">Documents</button>
+    </div>
+
+    <div id="modal-tab-overview" class="modal-tab-content active">
+      <p id="modal-desc" style="font-size: 0.9375rem; color: var(--text-on-dark); line-height: 1.7; margin-bottom: 1rem;"></p>
+    </div>
+
+    <div id="modal-tab-benefits" class="modal-tab-content">
+      <div class="benefits-list" id="modal-benefits-list"></div>
+    </div>
+
+    <div id="modal-tab-apply" class="modal-tab-content">
+      <div class="steps-list" id="modal-steps-list"></div>
+      <div class="mt-4">
+        <a id="modal-link" href="#" target="_blank" class="btn btn-primary btn-full">
+          <i data-lucide="globe"></i> Apply on Official Portal
+        </a>
+      </div>
+    </div>
+
+    <div id="modal-tab-documents" class="modal-tab-content">
+      <div id="modal-docs-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Scripts — loaded in dependency order at body end for fastest paint -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="data.js?v=12"></script>
+<script src="scraped_data.js?v=12"></script>
+<script src="app.js?v=12"></script>
+
+</body>
+</html>
